@@ -15,7 +15,7 @@ neurosity.login({
 # 2: red
 # 3: green
 # 4: yellow
-file = open('data/june-5-2023 pt4.csv', 'a', newline='')
+file = open('data/june-6-2023.csv', 'a', newline='')
 writer = csv.writer(file)
 
 classification = 0
@@ -42,17 +42,18 @@ def brainwave_callback(data):
     if len(brainwaves) == 32:
         try:
             if classification == 1 or classification == "1":
-                print("blue")
+                print("Blue")
             elif classification == 2 or classification == "2":
-                print("red")
+                print("Red")
             elif classification == 3 or classification == "3":
-                print("green")
+                print("Green")
             elif classification == 4 or classification == "4":
-                print("yellow")
+                print("Yellow")
 
+            writer.writerow([brainwaves, classification])
             callback_completed.set()
             unsubscribe_brainwaves()
-            writer.writerow([brainwaves, classification])
+
         except Exception as e:
             pass
 
@@ -76,6 +77,3 @@ while True:
     count += 1
     print("Count: " + str(count))
     command = input("Enter a command: ")
-
-
-
