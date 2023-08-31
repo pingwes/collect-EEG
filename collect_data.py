@@ -1,9 +1,9 @@
-from neurosity import neurosity_sdk
-import os
 import csv
+import os
 import threading
+from neurosity import NeurositySDK
 
-neurosity = neurosity_sdk({
+neurosity = NeurositySDK({
     "device_id": os.getenv("NEUROSITY_DEVICE_ID"),
 })
 neurosity.login({
@@ -11,17 +11,16 @@ neurosity.login({
     "password": os.getenv("NEUROSITY_PASSWORD")
 })
 
-# 1: blue
-# 2: red
-# 3: green
-# 4: yellow
-file = open('data/june-6-2023.csv', 'a', newline='')
+# 1: upward
+# 2: down
+file = open('data/EEG/movements_5/aug-30-2023.csv', 'a', newline='')
 writer = csv.writer(file)
 
 classification = 0
 brainwaves = []
 classified_brainwaves = []
-count = 0
+up_count = 0
+down_count = 0
 
 
 def unpack_data(data):
@@ -30,11 +29,6 @@ def unpack_data(data):
         unpacked_data = unpacked_data + (data['data'][i])
     return unpacked_data
 
-
-def signal_quality_callback(data):
-    print(data)
-
-
 def brainwave_callback(data):
     print(data)
     brainwaves.append(unpack_data(data))
@@ -42,13 +36,9 @@ def brainwave_callback(data):
     if len(brainwaves) == 32:
         try:
             if classification == 1 or classification == "1":
-                print("Blue")
+                print("Upward")
             elif classification == 2 or classification == "2":
-                print("Red")
-            elif classification == 3 or classification == "3":
-                print("Green")
-            elif classification == 4 or classification == "4":
-                print("Yellow")
+                print("Down")
 
             writer.writerow([brainwaves, classification])
             callback_completed.set()
@@ -61,19 +51,20 @@ def brainwave_callback(data):
 command = input("Enter a command: ")
 
 while True:
-    # Create an event object
     callback_completed = threading.Event()
 
-    if command == "start" or command == "1" or command == "2" or command == "3" or command == "4" or command == "":
+    if command == "start" or command == "1" or command == "2" or command == "":
         if command != "": classification = command
+        if classification == "1": up_count += 1
+        if classification == "2": down_count += 1
         unsubscribe_brainwaves = neurosity.brainwaves_raw(brainwave_callback)
         brainwaves = []
     if command == "stop":
         file.close()
         break
 
-    # Wait for the callback to complete
     callback_completed.wait()
-    count += 1
-    print("Count: " + str(count))
+
+    print("Up count: " + str(up_count))
+    print("Down count: " + str(down_count))
     command = input("Enter a command: ")

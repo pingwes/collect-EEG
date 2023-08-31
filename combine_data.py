@@ -1,12 +1,17 @@
 import os
-import pandas as pd
 import csv
 
 # Directory containing the CSV files
-directory = './data/'
+directory = './data/EEG/movements_4'
 
-merge_file = open('merged/merged_0.csv', 'a', newline='')
+merge_file = open('merged/merged_9.csv', 'a', newline='')
 merge_writer = csv.writer(merge_file)
+
+
+blue_count = 0
+red_count = 0
+green_count = 0
+yellow_count = 0
 
 # Iterate through each file in the directory
 for filename in os.listdir(directory):
@@ -17,7 +22,25 @@ for filename in os.listdir(directory):
         reader = csv.reader(individual_file)
         for row in reader:
             try:
-                if int(row[1]) <= 5:
+                if int(row[1]) < 3:
+
+                    if int(row[1]) == 1:
+                        if blue_count >= 368:
+                            continue
+                        blue_count += 1
+                    elif int(row[1]) == 2:
+                        if red_count >= 368:
+                            continue
+                        red_count += 1
+                    elif int(row[1]) == 3:
+                        if green_count >= 368:
+                            continue
+                        green_count += 1
+                    elif int(row[1]) == 4:
+                        if yellow_count >= 368:
+                            continue
+                        yellow_count += 1
+
                     merge_writer.writerow(row[:2])
             except Exception as E:
                 print(E)
@@ -25,7 +48,13 @@ for filename in os.listdir(directory):
 
 merge_file.close()
 
-csv_file = open('merged/merged_0.csv', 'r', newline='')
+print(f"{blue_count} blue values.")
+print(f"{red_count} red values.")
+print(f"{green_count} green values.")
+print(f"{yellow_count} yellow values.")
+
+
+csv_file = open('merged/merged_9.csv', 'r', newline='')
 # Count the number of rows
 total_rows = 0
 one_count = 0
@@ -43,7 +72,7 @@ for row in csv_file:
 
 # Print the result
 print(f"The CSV file has {total_rows} rows.")
-print(f"{one_count} blue values.")
-print(f"{two_count} red values.")
+print(f"{one_count} up values.")
+print(f"{two_count} down values.")
 print(f"{three_count} green values.")
 print(f"{four_count} yellow values.")
